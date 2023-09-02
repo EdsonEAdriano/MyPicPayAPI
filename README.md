@@ -10,6 +10,9 @@ Efetuando validações e gerando rastreabilidade das ações.
 Simples!
 Instale o .NET SDK,
 Clone ou instale este repositório, em sua IDE de preferência, abra o projeto,
+para enviar o email de pagamento, será preciso informar um email valido (de preferência do outlook) no arquivo **SendEmail**,
 caso esteja utilizando o Visual Studio Code, basta abrir o terminal ( `Ctrl` + `'` ) e rodar o seguinte comando **dotnet run**,
 para será disponibilizado um link para localhost, basta adicionar /swagger ou usar outro app de preferencia para testar as requisições
 e Pronto! 😁
+
+
