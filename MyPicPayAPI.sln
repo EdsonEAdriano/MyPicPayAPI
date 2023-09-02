@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyPicPayAPI", "MyPicPayAPI\MyPicPayAPI.csproj", "{1A1313A1-7ABF-4782-8959-F8EF14F1FE9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimplePicPay", "MyPicPayAPI\SimplePicPay.csproj", "{1A1313A1-7ABF-4782-8959-F8EF14F1FE9F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
