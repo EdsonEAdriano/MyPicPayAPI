@@ -63,6 +63,12 @@ namespace SimplePicPay.Controllers
                     return BadRequest("Pagador é o mesmo que o recebedor.");
                 }
 
+                if (payer.Type == UserType.Store)
+                {
+                    _log.LogWarning("Lojistas não podem realizar transferências.");
+                    return BadRequest("Lojistas não podem realizar transferências.");
+                }
+
                 if (payer.Balance < value)
                 {
                     _log.LogWarning("Saldo insuficiente.");
