@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SimplePicPay.Helpers;
@@ -23,6 +24,7 @@ namespace SimplePicPay.Controllers
         }
 
         [HttpPost("RegisterUser")]
+        [Authorize]
         public async Task<IActionResult> RegisterUser(string name, UserType type, string cpf, string email, string password, double balance)
         {
             var user = new UserModel { Name = name, Type = type, CPF = cpf, Email = email, Password = password, Balance = balance };
@@ -40,6 +42,7 @@ namespace SimplePicPay.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public IActionResult ViewUser(int userId)
         {
             var user = _userRepository.Get(userId);
@@ -48,6 +51,7 @@ namespace SimplePicPay.Controllers
         }
 
         [HttpPost("SendPayment")]
+        [Authorize]
         public async Task<IActionResult> SendPayment(int payerID, int payeeID, double value)
         {
             var payer = _userRepository.Get(payerID);
