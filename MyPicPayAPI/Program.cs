@@ -19,6 +19,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ConnectionContext>(options =>
     options.UseInMemoryDatabase("InMemoryDb"));
 
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 builder.Services.AddScoped<ISendEmail, SendEmail>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IMockVerifyPayment, MockVerifyPayment>();
@@ -51,7 +54,8 @@ using (var scope = app.Services.CreateScope())
     if (!dbContext.Users.Any())
     {
         dbContext.Users.Add(new UserModel { Name = "Edson", Type = UserType.Default, CPF = "123.123.123-22", Email = "edsoneurides0705@gmail.com", Password = "123", Balance = 1000 });
-        dbContext.Users.Add(new UserModel { Name = "Andreia", Type = UserType.Default, CPF = "123.123.123-87", Email = "edsoneurides0705@gmail.com", Password = "123", Balance = 1000 });
+        dbContext.Users.Add(new UserModel { Name = "Andreia", Type = UserType.Default, CPF = "123.123.123-87", Email = "andreia@email.com", Password = "123", Balance = 1500 });
+        dbContext.Users.Add(new UserModel { Name = "Loja seu Zé", Type = UserType.Store, CPF = "123.123.543-87", Email = "seuze@email.com", Password = "123", Balance = 20000 });
         dbContext.SaveChanges();
     }
 }
