@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SimplePicPay.Helpers;
 using SimplePicPay.Models;
 using SimplePicPay.Repository;
+using SimplePicPay.ViewModels;
 
 namespace SimplePicPay.Controllers
 {
@@ -12,10 +14,12 @@ namespace SimplePicPay.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly ILogger<TransactionController> _log;
-        public TransactionController(IUserRepository userRepository, ILogger<TransactionController> log)
+        private readonly IMapper _mapper;
+        public TransactionController(IUserRepository userRepository, ILogger<TransactionController> log, IMapper mapper)
         {
             _userRepository = userRepository;
             _log = log;
+            _mapper = mapper;
         }
 
         [HttpPost("RegisterUser")]
@@ -39,7 +43,8 @@ namespace SimplePicPay.Controllers
         public IActionResult ViewUser(int userId)
         {
             var user = _userRepository.Get(userId);
-            return Ok(user);
+            var userView = _mapper.Map<UserViewModel>(user);
+            return Ok(userView);
         }
 
         [HttpPost("SendPayment")]
