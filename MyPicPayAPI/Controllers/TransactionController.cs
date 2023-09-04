@@ -51,7 +51,7 @@ namespace SimplePicPay.Controllers
             try
             {
 
-                if (payer == null && payee == null)
+                if (payer == null || payee == null)
                 {
                     _log.LogWarning("Não foi possivel encontrar os usuários.");
                     return BadRequest("Não foi possivel encontrar os usuários.");
