@@ -8,7 +8,8 @@ using SimplePicPay.Data;
 using SimplePicPay.Helpers;
 using SimplePicPay.Integration;
 using SimplePicPay.Models;
-using SimplePicPay.Repository;
+using SimplePicPay.Repository.Transaction;
+using SimplePicPay.Repository.User;
 using System.Text;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -78,6 +79,7 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<ISendEmail, SendEmail>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<IMockVerifyPayment, MockVerifyPayment>();
 
 builder.Services.AddRefitClient<IMockVerifyPaymentRefit>().ConfigureHttpClient(c =>
