@@ -79,9 +79,9 @@ namespace SimplePicPay.Repository.Transaction
             return transactions;
         }
 
-        private TransactionModel Add(UserModel payer, UserModel payee, double value)
+        private TransactionModel Add(UserModel payerModel, UserModel payeeModel, double valueP)
         {
-            var tran = new TransactionModel { Payer = payer, Payee = payee, Status = TransactionStatus.Pending, StartDate = DateTime.Now };
+            var tran = new TransactionModel { Payer = payerModel, Payee = payeeModel, Status = TransactionStatus.Pending, Value = valueP, StartDate = DateTime.Now };
 
             try
             {
@@ -97,7 +97,7 @@ namespace SimplePicPay.Repository.Transaction
             }
 
             
-        }
+        }       
         public bool UpdateStatus(TransactionModel tran, TransactionStatus status)
         {   
             tran.Status = status;

@@ -82,7 +82,7 @@ namespace SimplePicPay.Controllers
 
                 
      
-        }
+            }
 
         [HttpPost("Get")]
         [Authorize]
