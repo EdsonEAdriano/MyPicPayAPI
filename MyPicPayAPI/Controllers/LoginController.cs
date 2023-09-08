@@ -8,15 +8,13 @@ namespace SimplePicPay.Controllers
     public class LoginController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Authentication(string username, string password)
+        public IActionResult Authentication(string email, string password)
         {
-            if (username.ToUpper() != "ADMIN" || password != "1")
-            {
-                return BadRequest("Login inválido!");
-            }
+            CredentialToSendEmail.email = email;
+            CredentialToSendEmail.password = password;
 
 
-            var token = TokenService.GenerateToken(username, password);
+            var token = TokenService.GenerateToken(email, password);
             return Ok(token);
         }
     }

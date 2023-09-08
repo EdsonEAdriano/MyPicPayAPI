@@ -9,8 +9,8 @@ namespace SimplePicPay.Helpers
         {
             try
             {
-                string mail = "<your-email>"; // Your valid email, preference for outlook email 😉
-                string pw = "<your-password"; // Password email 🤐
+                string mail = CredentialToSendEmail.email; // Your valid email, preference for outlook email 😉
+                string pw = CredentialToSendEmail.password; // Password email 🤐
 
                 string host = "smtp-mail.outlook.com";
                 int port = 587;
@@ -37,6 +37,7 @@ namespace SimplePicPay.Helpers
             }
             catch (Exception e)
             {
+                Console.WriteLine($"Ocorreu um erro ao enviar email para {email}. ERROR MESSAGE: {e.Message}");
                 return false;
             }
             
