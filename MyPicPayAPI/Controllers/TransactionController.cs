@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SimplePicPay.Helpers;
 using SimplePicPay.Models;
-using SimplePicPay.Repository;
+using SimplePicPay.Repository.Transaction;
+using SimplePicPay.Repository.User;
 using SimplePicPay.ViewModels;
 
 namespace SimplePicPay.Controllers
@@ -14,41 +15,16 @@ namespace SimplePicPay.Controllers
     public class TransactionController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly ITransactionRepository _transactionRepository;
         private readonly ILogger<TransactionController> _log;
         private readonly IMapper _mapper;
-        public TransactionController(IUserRepository userRepository, ILogger<TransactionController> log, IMapper mapper)
+        public TransactionController(IUserRepository userRepository, ILogger<TransactionController> log, IMapper mapper, ITransactionRepository transactionRepository)
         {
             _userRepository = userRepository;
             _log = log;
             _mapper = mapper;
-        }
-
-        [HttpPost("RegisterUser")]
-        [Authorize]
-        public async Task<IActionResult> RegisterUser(string name, UserType type, string cpf, string email, string password, double balance)
-        {
-            var user = new UserModel { Name = name, Type = type, CPF = cpf, Email = email, Password = password, Balance = balance };
-
-            if (await _userRepository.Add(user))
-            {
-                _log.LogInformation("Usuário registrado.");
-                return Ok("Usuário registrado.");
-            }
-            else
-            {
-                _log.LogWarning("Email ou CPF inválidos!");
-                return BadRequest("Email ou CPF inválidos!");
-            }
-        }
-
-        [HttpGet]
-        [Authorize]
-        public IActionResult ViewUser(int userId)
-        {
-            var user = _userRepository.Get(userId);
-            var userView = _mapper.Map<UserViewModel>(user);
-            return Ok(userView);
-        }
+            _transactionRepository = transactionRepository;
+        }       
 
         [HttpPost("SendPayment")]
         [Authorize]
@@ -84,7 +60,7 @@ namespace SimplePicPay.Controllers
                     return BadRequest("Saldo insuficiente.");
                 }
             
-                if (await _userRepository.SendPayment(payer, payee, value))
+                if (await _transactionRepository.SendPayment(payer, payee, value))
                 {
                     _log.LogInformation("Transação concluída!");
                     return Ok("Transação concluída!");
@@ -106,6 +82,14 @@ namespace SimplePicPay.Controllers
 
                 
      
+            }
+
+        [HttpPost("Get")]
+        [Authorize]
+        public IActionResult Get()
+        {
+            var transactions = _transactionRepository.Get();
+            return Ok(transactions);
         }
     }
 }

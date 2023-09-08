@@ -1,65 +1,33 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using SimplePicPay.Data;
 using SimplePicPay.Helpers;
 using SimplePicPay.Integration;
 using SimplePicPay.Models;
+using SimplePicPay.Repository.User;
 
-namespace SimplePicPay.Repository
+namespace SimplePicPay.Repository.Transaction
 {
-    public class UserRepository : IUserRepository
+    public class TransactionRepository : ITransactionRepository
     {
         private readonly ConnectionContext _con;
         private readonly IMockVerifyPayment _mockVerifyPayment;
         private readonly ISendEmail _sendEmail;
-        private readonly ILogger<UserRepository> _log;   
-        public UserRepository(ConnectionContext con, IMockVerifyPayment mockVerifyPayment, ISendEmail sendMail, ILogger<UserRepository> log) 
+        private readonly ILogger<TransactionRepository> _log;
+        private readonly IUserRepository _userRepository;
+
+        public TransactionRepository(ConnectionContext con, IMockVerifyPayment mockVerifyPayment, ISendEmail sendMail, ILogger<TransactionRepository> log, IUserRepository userRepository)
         {
             _con = con;
             _mockVerifyPayment = mockVerifyPayment;
             _sendEmail = sendMail;
             _log = log;
-        }
-
-        public async Task<bool> Add(UserModel user)
-        {
-            if (await VerifyCPF(user.CPF))
-            {
-                if (await VerifyEmail(user.Email))
-                {
-                    await _con.Users.AddAsync(user);
-                    await _con.SaveChangesAsync();
-
-                    return true;
-                }
-                else
-                {
-                    _log.LogWarning("Este email já foi cadastrado");
-                    return false;
-                }
-                
-            }
-            else 
-            {
-                _log.LogWarning("Este CPF já foi cadastrado");
-                return false; 
-            }           
-        }
-        
-        private void Update(UserModel user)
-        {
-            _con.Users.Update(user);
-            _con.SaveChanges();
-        }
-
-        public UserModel Get(int id)
-        {
-            var user = _con.Users.FirstOrDefault(x => x.Id == id);
-            return user;
+            _userRepository = userRepository;
         }
 
         public async Task<bool> SendPayment(UserModel payer, UserModel payee, double value)
         {
+            var tran = Add(payer, payee, value);
+
             try
             {
                 string message = await _mockVerifyPayment.VerifyPayment();
@@ -68,8 +36,8 @@ namespace SimplePicPay.Repository
                 {
                     payer.Balance -= value;
                     payee.Balance += value;
-                    Update(payer);
-                    Update(payee);
+                    _userRepository.Update(payer);
+                    _userRepository.Update(payee);
 
                     // This email message acept HTML 
                     string payerMsg = "<h1>Pagamento efetuado!</h1>" +
@@ -82,46 +50,72 @@ namespace SimplePicPay.Repository
                     _sendEmail.SendMail(payee.Email, "Pagamento recebido", payeeMsg);
 
 
+                    UpdateStatus(tran, TransactionStatus.Completed);
                     _log.LogInformation("Transferência efetuada com sucesso.");
                     return true;
                 }
                 else
                 {
+                    UpdateStatus(tran, TransactionStatus.Unauthorized);
                     _log.LogWarning("Usuário não autorizado.");
                     return false;
                 }
             }
             catch (Exception e)
             {
+                UpdateStatus(tran, TransactionStatus.Error);
                 _log.LogError($"Ocorreu um erro ao realizar a transferência. ERROR MESSAGE: {e.Message}; ");
                 return false;
             }
 
-                                
+
+
+        }
+
+        public List<TransactionModel> Get()
+        {
+            var transactions = _con.Transactions.ToList();
+
+            return transactions;
+        }
+
+        private TransactionModel Add(UserModel payerModel, UserModel payeeModel, double valueP)
+        {
+            var tran = new TransactionModel { Payer = payerModel, Payee = payeeModel, Status = TransactionStatus.Pending, Value = valueP, StartDate = DateTime.Now };
+
+            try
+            {
+                _con.Transactions.Add(tran);
+                _con.SaveChanges();
+
+                return tran;
+            }
+            catch (Exception e)
+            {
+                _log.LogError($"Ocorreu um erro ao adicionar uma nova transação. ERROR MESSAGE: {e.Message}");
+                return null;
+            }
+
             
         }       
+        public bool UpdateStatus(TransactionModel tran, TransactionStatus status)
+        {   
+            tran.Status = status;
+            tran.EndDate = DateTime.Now;
 
-        private async Task<bool> VerifyCPF(string cpf)
-        {
-            if (await _con.Users.AnyAsync(x => x.CPF == cpf))
+            try
             {
-                return false;
-            }
-            else
-            {
+                _con.Transactions.Update(tran);
+                _con.SaveChanges();
                 return true;
             }
-        }
-        private async Task<bool> VerifyEmail(string email)
-        {
-            if (await _con.Users.AnyAsync(x => x.Email == email))
+            catch (Exception e)
             {
+                _log.LogError($"Ocorreu um erro ao alterar o status de uma transação. ERROR MESSAGE: {e.Message}");
                 return false;
             }
-            else
-            {
-                return true;
-            }
         }
+
+        
     }
 }
