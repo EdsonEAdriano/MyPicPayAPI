@@ -24,7 +24,7 @@ namespace SimplePicPay.Controllers
             _log = log;
             _mapper = mapper;
             _transactionRepository = transactionRepository;
-        }       
+        }
 
         [HttpPost("SendPayment")]
         [Authorize]
@@ -39,52 +39,56 @@ namespace SimplePicPay.Controllers
                 if (payer == null || payee == null)
                 {
                     _log.LogWarning("Não foi possivel encontrar os usuários.");
-                    return BadRequest("Não foi possivel encontrar os usuários.");
+                    return NotFound("Não foi possivel encontrar os usuários.");
                 }
+
+                var tran = _transactionRepository.Add(payer, payee, value);
 
                 if (payer == payee)
                 {
+                    _transactionRepository.UpdateStatus(tran, TransactionStatus.Error);
                     _log.LogWarning("Pagador é o mesmo que o recebedor.");
                     return BadRequest("Pagador é o mesmo que o recebedor.");
                 }
 
                 if (payer.Type == UserType.Store)
                 {
+                    _transactionRepository.UpdateStatus(tran, TransactionStatus.Error);
                     _log.LogWarning("Lojistas não podem realizar transferências.");
                     return BadRequest("Lojistas não podem realizar transferências.");
                 }
 
                 if (payer.Balance < value)
                 {
+                    _transactionRepository.UpdateStatus(tran, TransactionStatus.Error);
                     _log.LogWarning("Saldo insuficiente.");
                     return BadRequest("Saldo insuficiente.");
                 }
-            
-                if (await _transactionRepository.SendPayment(payer, payee, value))
+
+                if (await _transactionRepository.SendPayment(tran))
                 {
+                    _transactionRepository.UpdateStatus(tran, TransactionStatus.Completed);
                     _log.LogInformation("Transação concluída!");
                     return Ok("Transação concluída!");
                 }
                 else
                 {
+                    _transactionRepository.UpdateStatus(tran, TransactionStatus.Error);
                     _log.LogWarning("Falha ao realizar a transferência.");
                     return BadRequest("Falha ao realizar a transferência.");
                 }
 
-                
+
             }
             catch (Exception e)
             {
                 _log.LogError($"Ocorreu um erro ao efetuar a transação. ERROR MESAGE: {e.Message}; ");
                 return BadRequest($"Ocorreu um erro ao efetuar a transação. ERROR MESAGE: {e.Message}; ");
             }
-            
 
-                
-     
-            }
+        }
 
-        [HttpPost("Get")]
+        [HttpGet("Get")]
         [Authorize]
         public IActionResult Get()
         {

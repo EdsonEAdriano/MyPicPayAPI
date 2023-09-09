@@ -11,7 +11,7 @@ namespace SimplePicPay.Data
         public DbSet<TransactionModel> Transactions { get; set; }
 
         public ConnectionContext(DbContextOptions<ConnectionContext> options) : base(options)
-        {
+        {   
         }
     }
 }

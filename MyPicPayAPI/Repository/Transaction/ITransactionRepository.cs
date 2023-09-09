@@ -1,11 +1,14 @@
 ﻿using SimplePicPay.Helpers;
 using SimplePicPay.Models;
+using SimplePicPay.ViewModels;
 
 namespace SimplePicPay.Repository.Transaction
 {
     public interface ITransactionRepository
     {
-        public List<TransactionModel> Get();
-        public Task<bool> SendPayment(UserModel payer, UserModel payee, double value);
+        public TransactionModel Add(UserModel payer, UserModel payee, double value);
+        public List<TransactionViewModel> Get();
+        public void UpdateStatus(TransactionModel tran, TransactionStatus status);
+        public Task<bool> SendPayment(TransactionModel tran);
     }
 }
