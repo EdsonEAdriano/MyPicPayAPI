@@ -56,7 +56,7 @@ namespace SimplePicPay.Repository.User
 
         private async Task<bool> VerifyCPF(string cpf)
         {
-            if (await _con.Users.AnyAsync(x => x.CPF == cpf))
+            if (await _con.Users.AnyAsync(x => x.CPF == cpf.Trim()))
             {
                 return false;
             }
@@ -67,7 +67,7 @@ namespace SimplePicPay.Repository.User
         }
         private async Task<bool> VerifyEmail(string email)
         {
-            if (await _con.Users.AnyAsync(x => x.Email == email))
+            if (await _con.Users.AnyAsync(x => x.Email == email.Trim()))
             {
                 return false;
             }
