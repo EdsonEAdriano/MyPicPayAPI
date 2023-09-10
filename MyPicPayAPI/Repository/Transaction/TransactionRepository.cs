@@ -11,14 +11,14 @@ namespace SimplePicPay.Repository.Transaction
 {
     public class TransactionRepository : ITransactionRepository
     {
-        private readonly ConnectionContext _con;
+        private readonly AppConnectionDBContext _con;
         private readonly IMockVerifyPayment _mockVerifyPayment;
         private readonly ISendEmail _sendEmail;
         private readonly ILogger<TransactionRepository> _log;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
 
-        public TransactionRepository(ConnectionContext con, IMockVerifyPayment mockVerifyPayment, ISendEmail sendMail, ILogger<TransactionRepository> log, IUserRepository userRepository, IMapper mapper)
+        public TransactionRepository(AppConnectionDBContext con, IMockVerifyPayment mockVerifyPayment, ISendEmail sendMail, ILogger<TransactionRepository> log, IUserRepository userRepository, IMapper mapper)
         {
             _con = con;
             _mockVerifyPayment = mockVerifyPayment;
@@ -79,6 +79,7 @@ namespace SimplePicPay.Repository.Transaction
             var transactions = _con.Transactions
                                     .Include(t => t.Payer)
                                     .Include(t => t.Payee)
+                                    .AsNoTracking()
                                     .ToList();
 
             var transactionsView = _mapper.Map<List<TransactionViewModel>>(transactions);

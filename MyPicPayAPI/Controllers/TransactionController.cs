@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SimplePicPay.Helpers;
 using SimplePicPay.Models;
+using SimplePicPay.ModelsToSend;
 using SimplePicPay.Repository.Transaction;
 using SimplePicPay.Repository.User;
 using SimplePicPay.ViewModels;
@@ -26,12 +27,12 @@ namespace SimplePicPay.Controllers
             _transactionRepository = transactionRepository;
         }
 
-        [HttpPost("SendPayment")]
+        [HttpPost]
         [Authorize]
-        public async Task<IActionResult> SendPayment(int payerID, int payeeID, double value)
+        public async Task<IActionResult> SendPayment([FromBody] TransactionModelToSend tranModel)
         {
-            var payer = _userRepository.Get(payerID);
-            var payee = _userRepository.Get(payeeID);
+            var payer = _userRepository.Get(tranModel.payerID);
+            var payee = _userRepository.Get(tranModel.payeeID);
 
             try
             {
@@ -42,7 +43,7 @@ namespace SimplePicPay.Controllers
                     return NotFound("Não foi possivel encontrar os usuários.");
                 }
 
-                var tran = _transactionRepository.Add(payer, payee, value);
+                var tran = _transactionRepository.Add(payer, payee, tranModel.value);
 
                 if (payer == payee)
                 {
@@ -58,7 +59,14 @@ namespace SimplePicPay.Controllers
                     return BadRequest("Lojistas não podem realizar transferências.");
                 }
 
-                if (payer.Balance < value)
+                if (tranModel.value <= 0)
+                {
+                    _transactionRepository.UpdateStatus(tran, TransactionStatus.Error);
+                    _log.LogWarning("Valor inválido.");
+                    return BadRequest("Valor inválido.");
+                }
+
+                if (payer.Balance < tranModel.value)
                 {
                     _transactionRepository.UpdateStatus(tran, TransactionStatus.Error);
                     _log.LogWarning("Saldo insuficiente.");
@@ -88,7 +96,7 @@ namespace SimplePicPay.Controllers
 
         }
 
-        [HttpGet("Get")]
+        [HttpGet]
         [Authorize]
         public IActionResult Get()
         {

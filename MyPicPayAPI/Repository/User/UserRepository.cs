@@ -4,14 +4,15 @@ using SimplePicPay.Data;
 using SimplePicPay.Helpers;
 using SimplePicPay.Integration;
 using SimplePicPay.Models;
+using SimplePicPay.ModelsToSend;
 
 namespace SimplePicPay.Repository.User
 {
     public class UserRepository : IUserRepository
     {
-        private readonly ConnectionContext _con;
+        private readonly AppConnectionDBContext _con;
         private readonly ILogger<UserRepository> _log;
-        public UserRepository(ConnectionContext con, ILogger<UserRepository> log)
+        public UserRepository(AppConnectionDBContext con, ILogger<UserRepository> log)
         {
             _con = con;
             _log = log;
@@ -40,6 +41,32 @@ namespace SimplePicPay.Repository.User
                 _log.LogWarning("Este CPF já foi cadastrado");
                 return false;
             }
+        } 
+
+        public async Task<bool> Update(int id, UserModelToSend userModel)
+        {
+            var user = _con
+                .Users
+                .FirstOrDefault(x => x.Id == id);
+
+            if (user == null && !await VerifyCPF(userModel.CPF) && !await VerifyEmail(userModel.Email))
+            {
+                return false;
+            }
+            else
+            {
+                user.Name = userModel.Name;
+                user.Type = userModel.Type;
+                user.CPF = userModel.CPF;
+                user.Email = userModel.Email;
+                user.Password = userModel.Password;
+                user.Balance = userModel.Balance;
+
+
+                _con.Users.Update(user);
+                _con.SaveChanges();
+                return true;
+            }           
         }
 
         public void Update(UserModel user)
@@ -48,15 +75,45 @@ namespace SimplePicPay.Repository.User
             _con.SaveChanges();
         }
 
+        public bool Delete(int id)
+        {
+            var user = _con
+                .Users
+                .FirstOrDefault(x => x.Id == id);
+
+            if (user == null)
+            {
+                return false;
+            }
+            else
+            {
+                _con.Users.Remove(user);
+                _con.SaveChanges();
+                return true;
+            }          
+        }
+
         public UserModel Get(int id)
         {
-            var user = _con.Users.FirstOrDefault(x => x.Id == id);
+            var user = _con
+                .Users
+                .FirstOrDefault(x => x.Id == id);
+
             return user;
         }
 
-        private async Task<bool> VerifyCPF(string cpf)
+        public List<UserModel> Get()
         {
-            if (await _con.Users.AnyAsync(x => x.CPF == cpf.Trim()))
+            var users = _con
+                .Users
+                .ToList();
+
+            return users;
+        }
+
+        private async Task<bool> VerifyCPF(long cpf)
+        {
+            if (await _con.Users.AnyAsync(x => x.CPF == cpf))
             {
                 return false;
             }
@@ -76,5 +133,6 @@ namespace SimplePicPay.Repository.User
                 return true;
             }
         }
+
     }
 }
