@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SimplePicPay.Models;
 using SimplePicPay.Services;
 
 namespace SimplePicPay.Controllers
@@ -8,13 +9,14 @@ namespace SimplePicPay.Controllers
     public class LoginController : ControllerBase
     {
         [HttpPost]
-        public IActionResult Authentication(string email, string password)
+        public IActionResult Authentication([FromBody] LoginModel login
+            )
         {
-            CredentialToSendEmail.email = email;
-            CredentialToSendEmail.password = password;
+            CredentialToSendEmail.email = login.email;
+            CredentialToSendEmail.password = login.password;
 
 
-            var token = TokenService.GenerateToken(email, password);
+            var token = TokenService.GenerateToken(login.email, login.password);
             return Ok(token);
         }
     }
