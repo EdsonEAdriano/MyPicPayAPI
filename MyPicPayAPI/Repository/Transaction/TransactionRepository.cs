@@ -86,6 +86,19 @@ namespace SimplePicPay.Repository.Transaction
             return transactionsView;
         }
 
+        public List<TransactionViewModel> Get(string email)
+        {
+            var transactions = _con.Transactions
+                                    .Include(t => t.Payer)
+                                    .Include(t => t.Payee)
+                                    .AsNoTracking()
+                                    .Where(t => t.Payer.Email == email || t.Payee.Email == email)
+                                    .ToList();
+
+            var transactionsView = _mapper.Map<List<TransactionViewModel>>(transactions);
+            return transactionsView;
+        }
+
         public TransactionModel Add(UserModel payerModel, UserModel payeeModel, double valueP)
         {
             var tran = new TransactionModel { PayerID = payerModel.Id, Payer = payerModel, PayeeID = payeeModel.Id, Payee = payeeModel, Status = TransactionStatus.Pending, Value = valueP, StartDate = DateTime.Now };
