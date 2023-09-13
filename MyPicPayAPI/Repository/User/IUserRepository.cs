@@ -11,5 +11,6 @@ namespace SimplePicPay.Repository.User
         public bool Delete(int id);
         public UserModel Get(int id);
         public List<UserModel> Get();
+        public UserModel GetByLogin(LoginModel login);
     }
 }

@@ -24,6 +24,7 @@ namespace SimplePicPay.Repository.User
             {
                 if (await VerifyEmail(user.Email))
                 {
+                    user.Password = EncodePassword(user.Password);
                     await _con.Users.AddAsync(user);
                     await _con.SaveChangesAsync();
 
@@ -59,7 +60,7 @@ namespace SimplePicPay.Repository.User
                 user.Type = userModel.Type;
                 user.CPF = userModel.CPF;
                 user.Email = userModel.Email;
-                user.Password = userModel.Password;
+                user.Password = EncodePassword(userModel.Password);
                 user.Balance = userModel.Balance;
 
 
@@ -134,5 +135,49 @@ namespace SimplePicPay.Repository.User
             }
         }
 
+        public UserModel GetByLogin(LoginModel login)
+        {
+            var user = _con
+                .Users
+                .FirstOrDefault
+                (
+                    x => x.Email == login.email
+                );
+
+            if (user != null && DecodeFrom64(user.Password) == login.password)
+            {
+                return user;
+            }
+
+            return null;
+        }
+
+        private string EncodePassword(string password)
+        {
+            try
+            {
+                byte[] encData_byte = new byte[password.Length];
+                encData_byte = System.Text.Encoding.UTF8.GetBytes(password);
+                string encodedData = Convert.ToBase64String(encData_byte);
+                return encodedData;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error in base64Encode" + ex.Message);
+                return "";
+            }
+        }
+
+        private string DecodeFrom64(string encodedData)
+        {
+            System.Text.UTF8Encoding encoder = new System.Text.UTF8Encoding();
+            System.Text.Decoder utf8Decode = encoder.GetDecoder();
+            byte[] todecode_byte = Convert.FromBase64String(encodedData);
+            int charCount = utf8Decode.GetCharCount(todecode_byte, 0, todecode_byte.Length);
+            char[] decoded_char = new char[charCount];
+            utf8Decode.GetChars(todecode_byte, 0, todecode_byte.Length, decoded_char, 0);
+            string result = new String(decoded_char);
+            return result;
+        }
     }
 }
