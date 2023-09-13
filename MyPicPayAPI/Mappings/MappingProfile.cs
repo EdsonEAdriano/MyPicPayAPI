@@ -12,7 +12,7 @@ namespace SimplePicPay.Mappings
         public MappingProfile()
         {
             CreateMap<UserModel, UserViewModel>()
-                .ForMember(dest => dest.Type, map => map.MapFrom(src => src.Type == UserType.Store ? "Lojista" : "Padrão"))
+                .ForMember(dest => dest.Type, map => map.MapFrom(src => Enum.GetName(typeof(UserType), src.Type)))
                 .ReverseMap();
 
             CreateMap<TransactionModel, TransactionViewModel>()
