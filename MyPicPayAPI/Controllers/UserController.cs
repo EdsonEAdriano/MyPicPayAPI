@@ -6,6 +6,7 @@ using SimplePicPay.Models;
 using SimplePicPay.ModelsToSend;
 using SimplePicPay.Repository.User;
 using SimplePicPay.ViewModels;
+using System.Security.Claims;
 
 namespace SimplePicPay.Controllers
 {
@@ -24,10 +25,10 @@ namespace SimplePicPay.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> RegisterUser([FromBody] UserModelToSend userModel)
         {
-            var user = new UserModel { Name = userModel.Name, Type = userModel.Type, CPF = userModel.CPF, Email = userModel.Email, Password = EncodePassword(userModel.Password), Balance = userModel.Balance };
+            var user = new UserModel { Name = userModel.Name, Type = userModel.Type, CPF = userModel.CPF, Email = userModel.Email, Password = userModel.Password, Balance = userModel.Balance };
 
             if (await _userRepository.Add(user))
             {
@@ -70,11 +71,9 @@ namespace SimplePicPay.Controllers
 
         [HttpPut]
         [Route("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Put(int id, [FromBody] UserModelToSend userModel)
         {
-            userModel.Password = EncodePassword(userModel.Password);
-
             if ( await _userRepository.Update(id, userModel))
             {
                 return Ok("Usuário alterado!");
@@ -87,7 +86,7 @@ namespace SimplePicPay.Controllers
 
         [HttpDelete]
         [Route("{id}")]
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         public IActionResult Delete(int id)
         {
             if (_userRepository.Delete(id))
@@ -98,35 +97,6 @@ namespace SimplePicPay.Controllers
             {
                 return BadRequest("Usuário não encontrado.");
             }
-        }
-
-
-        private string EncodePassword(string password)
-        {
-            try
-            {
-                byte[] encData_byte = new byte[password.Length];
-                encData_byte = System.Text.Encoding.UTF8.GetBytes(password);
-                string encodedData = Convert.ToBase64String(encData_byte);
-                return encodedData;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error in base64Encode" + ex.Message);
-                return "";
-            }
-        }
-
-        private string DecodeFrom64(string encodedData)
-        {
-            System.Text.UTF8Encoding encoder = new System.Text.UTF8Encoding();
-            System.Text.Decoder utf8Decode = encoder.GetDecoder();
-            byte[] todecode_byte = Convert.FromBase64String(encodedData);
-            int charCount = utf8Decode.GetCharCount(todecode_byte, 0, todecode_byte.Length);
-            char[] decoded_char = new char[charCount];
-            utf8Decode.GetChars(todecode_byte, 0, todecode_byte.Length, decoded_char, 0);
-            string result = new String(decoded_char);
-            return result;
         }
     }
 }
