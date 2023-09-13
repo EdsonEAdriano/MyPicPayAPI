@@ -8,6 +8,7 @@ using SimplePicPay.ModelsToSend;
 using SimplePicPay.Repository.Transaction;
 using SimplePicPay.Repository.User;
 using SimplePicPay.ViewModels;
+using System.Security.Claims;
 
 namespace SimplePicPay.Controllers
 {
@@ -100,8 +101,33 @@ namespace SimplePicPay.Controllers
         [Authorize]
         public IActionResult Get()
         {
-            var transactions = _transactionRepository.Get();
-            return Ok(transactions);
+            List<TransactionViewModel> transactions;
+            var claimUserType = User.FindFirst(ClaimTypes.Role);
+            string userType = claimUserType.Value;
+
+            if ( userType != "Admin")
+            {
+                var claimEmail = User.FindFirst(ClaimTypes.Email);
+                string userEmail = claimEmail.Value;
+
+                transactions = _transactionRepository.Get(userEmail);
+            }
+            else
+            {
+                transactions = _transactionRepository.Get();
+            }
+
+            if (transactions.Count > 0 ) 
+            {
+                return Ok(transactions);
+            }
+            else
+            {
+                return NotFound("Transações não encontradas.");
+            }
+
+            
         }
+
     }
 }
