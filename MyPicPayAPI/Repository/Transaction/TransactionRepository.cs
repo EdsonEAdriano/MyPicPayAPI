@@ -61,12 +61,14 @@ namespace SimplePicPay.Repository.Transaction
                 else
                 {
                     _log.LogWarning("Usuário não autorizado.");
+                    UpdateStatus(tran, TransactionStatus.Unauthorized);
                     return false;
                 }
             }
             catch (Exception e)
             {               
                 _log.LogError($"Ocorreu um erro ao realizar a transferência. ERROR MESSAGE: {e.Message}; ");
+                UpdateStatus(tran, TransactionStatus.Error);
                 return false;
             }
 

@@ -82,7 +82,6 @@ namespace SimplePicPay.Controllers
                 }
                 else
                 {
-                    _transactionRepository.UpdateStatus(tran, TransactionStatus.Error);
                     _log.LogWarning("Falha ao realizar a transferência.");
                     return BadRequest("Falha ao realizar a transferência.");
                 }
