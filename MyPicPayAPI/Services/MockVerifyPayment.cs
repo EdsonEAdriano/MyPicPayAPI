@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Refit;
+using System.Net;
 
 namespace SimplePicPay.Integration
 {
@@ -12,12 +14,27 @@ namespace SimplePicPay.Integration
         }
         public async Task<string> VerifyPayment()
         {
-            var message = await _mockVerifyPaymentRefit.VerifyPaymentRefit();
-            JObject jsonObject = JObject.Parse(message);
+            try
+            {
+                var message = await _mockVerifyPaymentRefit.VerifyPaymentRefit();
+                JObject jsonObject = JObject.Parse(message);
 
-            message = (string)jsonObject["message"];
+                message = (string)jsonObject["message"];
 
-            return message;
+                return message;
+            }
+            catch (ApiException ex)
+            {
+                if (ex.StatusCode == HttpStatusCode.NotFound)
+                {
+                    return ex.Message;
+                }
+                else
+                {
+                    return ex.Message;
+                }
+            }
+            
         }
     }
 }

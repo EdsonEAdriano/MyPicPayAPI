@@ -5,6 +5,8 @@ VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimplePicPay", "MyPicPayAPI\SimplePicPay.csproj", "{1A1313A1-7ABF-4782-8959-F8EF14F1FE9F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthorizeUser", "AuthorizeUser\AuthorizeUser.csproj", "{95D9A97B-EB61-4A46-B841-9ADD1259E59F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{1A1313A1-7ABF-4782-8959-F8EF14F1FE9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1A1313A1-7ABF-4782-8959-F8EF14F1FE9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1A1313A1-7ABF-4782-8959-F8EF14F1FE9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95D9A97B-EB61-4A46-B841-9ADD1259E59F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95D9A97B-EB61-4A46-B841-9ADD1259E59F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95D9A97B-EB61-4A46-B841-9ADD1259E59F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95D9A97B-EB61-4A46-B841-9ADD1259E59F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

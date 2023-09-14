@@ -82,7 +82,7 @@ builder.Services.AddScoped<IMockVerifyPayment, MockVerifyPayment>();
 
 builder.Services.AddRefitClient<IMockVerifyPaymentRefit>().ConfigureHttpClient(c =>
 {
-    c.BaseAddress = new Uri("https://run.mocky.io");
+    c.BaseAddress = new Uri("https://localhost:7074");
 });
 
 var app = builder.Build();
